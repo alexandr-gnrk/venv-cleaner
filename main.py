@@ -27,7 +27,11 @@ go_down = None  # None value to start generator
 while True:
     try:
         curr_dir = dir_gen.send(go_down)
-        print(curr_dir)
-        go_down = True
+        is_venv = utils.is_virtualenv(curr_dir)
+        if is_venv is True:
+            go_down = False
+            print(curr_dir, is_venv)
+        else:
+            go_down = True
     except StopIteration:
         break
