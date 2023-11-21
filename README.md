@@ -1,7 +1,7 @@
 # venv-cleaner
 
 ## TODO
-- [ ] Recursive directory exploring.
+- [X] Recursive directory exploring.
 - [ ] Deleting venv directories.
 - [ ] Making requirements.txt file before deleting.
 - [ ] Confirmation prompt.
