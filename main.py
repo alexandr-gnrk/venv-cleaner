@@ -1,6 +1,7 @@
 import argparse
 from os import curdir
 from pathlib import Path
+from sys import path
 
 import utils
 
@@ -29,8 +30,9 @@ while True:
         curr_dir = dir_gen.send(go_down)
         is_venv = utils.is_virtualenv(curr_dir)
         if is_venv is True:
+            size = utils.bytes_to_str(utils.get_dir_size(curr_dir))
             go_down = False
-            print(curr_dir, is_venv)
+            print(curr_dir, is_venv, size)
         else:
             go_down = True
     except StopIteration:
