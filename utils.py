@@ -1,8 +1,9 @@
 import sys
 from pathlib import Path
+from collections.abc import Generator
 
 
-def child_dirs(path: Path):
+def child_dirs(path: Path) -> Generator[Path, bool, None]:
     for p in path.iterdir():
         if not p.is_dir():
             continue
@@ -13,7 +14,7 @@ def child_dirs(path: Path):
             yield from child_dirs(p)
 
 
-def is_virtualenv(path: Path):
+def is_virtualenv(path: Path) -> bool:
     if sys.platform != 'win32':
         bin = path / 'bin'
         python = bin / 'python'
