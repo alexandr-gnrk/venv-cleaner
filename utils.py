@@ -5,8 +5,14 @@ from collections.abc import Generator
 
 def child_dirs(path: Path) -> Generator[Path, bool|None, None]:
     for p in path.iterdir():
-        # TODO: skip if symlink? p.is_symlink()
-        if not p.is_dir():
+        try:
+            # TODO: skip if symlink? p.is_symlink()
+            if not p.is_dir():
+                continue
+
+            # check if we have right to read from directory
+            list(p.iterdir())
+        except PermissionError:
             continue
 
         go_down = (yield p)
@@ -35,9 +41,12 @@ def is_virtualenv(path: Path) -> bool:
         bin = path / 'Sripts'
         python = bin / 'python.exe'
     
-    has_bin = bin.is_dir()
-    has_python = python.is_file()
-    has_pyvenv_cfg = path.joinpath('pyvenv.cfg').is_file()
+    try:
+        has_bin = bin.is_dir()
+        has_python = python.is_file()
+        has_pyvenv_cfg = path.joinpath('pyvenv.cfg').is_file()
+    except PermissionError:
+        return False
     
     return has_bin and has_python and has_pyvenv_cfg
 
@@ -51,7 +60,7 @@ def bytes_to_str(size: int, full=False) -> str:
     )
 
     prefix = ''
-    name = 'byte' if full else 'B'
+    name = 'byte(s)' if full else 'B'
 
     i = 0
     nsize = float(size)
