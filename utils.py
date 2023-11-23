@@ -1,4 +1,5 @@
 import sys
+import subprocess
 from pathlib import Path
 from collections.abc import Generator
 
@@ -33,13 +34,21 @@ def get_dir_size(path: Path) -> int:
     return size
 
 
+def with_bin_path(path: Path) -> Path:
+    return path / ('bin' if sys.platform != 'win32' else 'Scripts')
+
+def with_python_path(path: Path) -> Path:
+    path = with_bin_path(path)
+    return path / ('python' if sys.platform != 'win32' else 'python.exe')
+
+def with_pip_path(path: Path) -> Path:
+    path = with_bin_path(path)
+    return path / ('pip3' if sys.platform != 'win32' else 'pip3.exe')
+
+
 def is_virtualenv(path: Path) -> bool:
-    if sys.platform != 'win32':
-        bin = path / 'bin'
-        python = bin / 'python'
-    else:
-        bin = path / 'Sripts'
-        python = bin / 'python.exe'
+    bin = with_bin_path(path)
+    python = with_python_path(path)
     
     try:
         has_bin = bin.is_dir()
@@ -49,6 +58,26 @@ def is_virtualenv(path: Path) -> bool:
         return False
     
     return has_bin and has_python and has_pyvenv_cfg
+
+
+def is_broken_venv(path: Path) -> bool:
+    command = [with_pip_path(path)]
+    try:
+        res = subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        return True
+        # print(e)
+        # raise e
+    except FileNotFoundError as e:
+        return True
+    return False
+
+
+def activate_venv(path: Path) -> str:
+    command = [with_pip_path(path), 'freeze']
+    res = subprocess.run(command, check=True, text=True)
+    return res.stdout
+
 
 def bytes_to_str(size: int, full=False) -> str:
     si_prefixes = (
