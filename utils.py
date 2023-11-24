@@ -1,3 +1,4 @@
+from re import sub
 import sys
 import subprocess
 from pathlib import Path
@@ -63,19 +64,27 @@ def is_virtualenv(path: Path) -> bool:
 def is_broken_venv(path: Path) -> bool:
     command = [with_pip_path(path)]
     try:
-        res = subprocess.run(command, check=True)
-    except subprocess.CalledProcessError as e:
+        subprocess.run(
+            command,
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return True
-        # print(e)
-        # raise e
-    except FileNotFoundError as e:
-        return True
+
     return False
 
 
 def activate_venv(path: Path) -> str:
     command = [with_pip_path(path), 'freeze']
-    res = subprocess.run(command, check=True, text=True)
+    res = subprocess.run(
+        command,
+        check=True,
+        text=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
     return res.stdout
 
 
