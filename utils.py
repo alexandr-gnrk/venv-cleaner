@@ -1,6 +1,6 @@
-from re import sub
 import sys
 import subprocess
+from datetime import datetime
 from pathlib import Path
 from collections.abc import Generator
 
@@ -76,16 +76,29 @@ def is_broken_venv(path: Path) -> bool:
     return False
 
 
-def activate_venv(path: Path) -> str:
+def get_freeze(path: Path) -> str:
     command = [with_pip_path(path), 'freeze']
     res = subprocess.run(
         command,
         check=True,
         text=True,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
     )
     return res.stdout
+
+
+def get_venv_name(path: Path) -> str:
+    return path.name
+
+
+def create_requirements_backup(path: Path) -> Path:
+    date_str = datetime.now().strftime('%y-%m-%d-%H-%M-%S')
+    req_name = f'requirements-backup-{date_str}.txt'
+    req_path = path.with_name(req_name)
+    freeze = get_freeze(path)
+    req_path.write_text(freeze)
+    return req_path
 
 
 def bytes_to_str(size: int, full=False) -> str:
