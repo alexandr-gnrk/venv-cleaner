@@ -4,7 +4,7 @@
 - [X] Recursive directory exploring.
 - [ ] Deleting venv directories.
 - [X] Making requirements.txt file before deleting.
-- [ ] Confirmation prompt.
+- [X] Confirmation prompt.
 - [X] Information about memory usage for each venv and in general.
 - [ ] Easy instalation using pip or bash script.
 

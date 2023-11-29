@@ -92,6 +92,25 @@ def get_venv_name(path: Path) -> str:
     return path.name
 
 
+def read_action(backup=True) -> str:
+    question = 'Do you want to delete this virtual environment?'
+    if backup:
+        print(question + ' (Y)es/(N)o/(B)ackup and delete')
+        answer = input('[y/N/b] > ').lower()
+        if answer == 'y':
+            return 'y'
+        elif answer == 'b':
+            return 'b'
+        else:
+            return 'n'
+    else:
+        print(question + ' (Y)es/(N)o')
+        answer = input('[y/N] > ').lower()
+        if answer == 'y':
+            return 'y'
+        else:
+            return 'n'
+
 def create_requirements_backup(path: Path) -> Path:
     date_str = datetime.now().strftime('%y-%m-%d-%H-%M-%S')
     req_name = f'requirements-backup-{date_str}.txt'
