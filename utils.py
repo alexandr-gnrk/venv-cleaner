@@ -1,5 +1,6 @@
 import sys
 import subprocess
+import shutil
 from datetime import datetime
 from pathlib import Path
 from collections.abc import Generator
@@ -90,6 +91,10 @@ def get_freeze(path: Path) -> str:
 
 def get_venv_name(path: Path) -> str:
     return path.name
+
+
+def rm_venv(path: Path) -> None:
+    shutil.rmtree(path)
 
 
 def read_action(backup=True) -> str:
