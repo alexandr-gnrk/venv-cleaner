@@ -2,7 +2,7 @@
 
 ## TODO
 - [X] Recursive directory exploring.
-- [ ] Deleting venv directories.
+- [X] Deleting venv directories.
 - [X] Making requirements.txt file before deleting.
 - [X] Confirmation prompt.
 - [X] Information about memory usage for each venv and in general.
