@@ -24,6 +24,29 @@ def child_dirs(path: Path) -> Generator[Path, bool|None, None]:
             yield from child_dirs(p)
 
 
+def print_venv_table() -> Generator[None, Path | None, None]:
+    print('{:30} {:8} {:10}'.format('Path', 'Broken', 'Size'))
+
+    total_size = 0
+    path = (yield)
+    while path is not None:
+        size = get_dir_size(path)
+        size_str = bytes_to_str(size)
+        broken = is_broken_venv(path)
+        total_size += size
+
+        path = str(path)
+        if len(path) > 30:
+            path = '...' + path[len(path)-27:]
+
+        print('{:30} {:8} {:10}'.format(path, str(broken), size_str))
+
+        path = (yield)
+
+    total_size_str = bytes_to_str(total_size)
+    print('{:39} {:10}'.format('Total size', total_size_str))
+
+
 def get_dir_size(path: Path) -> int:
     size = path.lstat().st_size
 

@@ -9,6 +9,11 @@ parser = argparse.ArgumentParser(
     description='A utility that helps to remove unnecessary python virtual environments.'
 )
 parser.add_argument(
+    '-a', '--analyze',
+    action='store_true',
+    default=False,
+)
+parser.add_argument(
     'path',
     type=str,
     help='path to directory where the search starts',
@@ -25,6 +30,12 @@ dir_gen = utils.child_dirs(start_dir)
 go_down = None  # None value to start generator
 total_size = 0
 freed_size = 0
+if args.analyze is True:
+    printer = utils.print_venv_table()
+    printer.send(None)
+else:
+    printer = None
+
 while True:
     try:
         curr_dir = dir_gen.send(go_down)
@@ -36,11 +47,15 @@ while True:
         else:
             go_down = False
 
+        if printer is not None:
+            printer.send(curr_dir)
+            continue
+
         size = utils.get_dir_size(curr_dir)
         total_size += size
 
         is_broken = utils.is_broken_venv(curr_dir)
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+        print('-------------------------------------')
         print('Path:', curr_dir)
         print('Name:', utils.get_venv_name(curr_dir))
         print('Size:', utils.bytes_to_str(size))
@@ -60,6 +75,13 @@ while True:
         else:  # skip
             pass
     except (StopIteration, KeyboardInterrupt):
-        print('Total size:', utils.bytes_to_str(total_size))
-        print('Freed size:', utils.bytes_to_str(freed_size))
+        if printer is not None:
+            try:
+                printer.send(None)
+            except StopIteration:
+                pass
+        else:
+            print('Total size:', utils.bytes_to_str(total_size))
+            print('Freed size:', utils.bytes_to_str(freed_size))
         break
+
