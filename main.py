@@ -26,6 +26,31 @@ if not start_dir.is_dir():
     print('Error: specified path must be a directory')
     exit(1)
 
+
+def print_venv_info(curr_dir: Path):
+    print('-------------------------------------')
+    print('Path:', curr_dir)
+    print('Name:', utils.get_venv_name(curr_dir))
+    print('Size:', utils.bytes_to_str(size))
+    print('Is broken:', is_broken)
+
+
+def take_action(curr_dir: Path) -> int:
+    freed_size = 0
+    action = utils.read_action(backup=not is_broken)
+    if action == 'y':  # delete
+        utils.rm_venv(curr_dir)
+        freed_size = size
+    elif action == 'b':  # backup
+        utils.get_freeze(curr_dir)
+        backup_path = utils.create_requirements_backup(curr_dir)
+        print('Requirements backup location:', backup_path)
+        utils.rm_venv(curr_dir)
+        freed_size = size
+
+    return freed_size
+
+
 dir_gen = utils.child_dirs(start_dir)
 go_down = None  # None value to start generator
 total_size = 0
@@ -55,25 +80,10 @@ while True:
         total_size += size
 
         is_broken = utils.is_broken_venv(curr_dir)
-        print('-------------------------------------')
-        print('Path:', curr_dir)
-        print('Name:', utils.get_venv_name(curr_dir))
-        print('Size:', utils.bytes_to_str(size))
-        print('Is broken:', is_broken)
+        print_venv_info(curr_dir)
 
-        action = utils.read_action(backup=not is_broken)
+        freed_size += take_action(curr_dir)
 
-        if action == 'y':  # delete
-            utils.rm_venv(curr_dir)
-            freed_size += size
-        elif action == 'b':  # backup
-            utils.get_freeze(curr_dir)
-            backup_path = utils.create_requirements_backup(curr_dir)
-            print('Requirements backup location:', backup_path)
-            utils.rm_venv(curr_dir)
-            freed_size += size
-        else:  # skip
-            pass
     except (StopIteration, KeyboardInterrupt):
         if printer is not None:
             try:
