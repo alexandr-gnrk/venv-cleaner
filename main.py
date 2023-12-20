@@ -70,14 +70,16 @@ def main():
     freed_size = 0
     if args.analyze is True:
         printer = print_venv_table()
-        printer.send(None)
+        next(printer)
     else:
         printer = None
 
-
     for curr_dir in dir_gen:
         is_venv = Venv.is_venv(curr_dir)
-        dir_gen.send(not is_venv)
+        try:
+            dir_gen.send(not is_venv)
+        except StopIteration:
+            pass
         if not is_venv:
             continue
 
@@ -100,7 +102,6 @@ def main():
         print('Total size:', utils.bytes_to_str(total_size))
         print('Freed size:', utils.bytes_to_str(freed_size))
 
-    exit(0)
 
 if __name__ == "__main__":
     main()
