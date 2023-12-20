@@ -3,6 +3,7 @@ from collections.abc import Generator
 
 
 def child_dirs(path: Path) -> Generator[Path, bool|None, None]:
+    go_down = None
     for p in path.iterdir():
         try:
             # TODO: skip if symlink? p.is_symlink()
@@ -14,10 +15,13 @@ def child_dirs(path: Path) -> Generator[Path, bool|None, None]:
         except PermissionError:
             continue
 
-        go_down = (yield p)
+        while go_down is None:
+            go_down = (yield p)
 
         if go_down is True:
             yield from child_dirs(p)
+
+        go_down = None
 
 
 def get_dir_size(path: Path) -> int:

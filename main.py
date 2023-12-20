@@ -66,7 +66,6 @@ def main():
         exit(1)
 
     dir_gen = utils.child_dirs(start_dir)
-    go_down = None  # None value to start generator
     total_size = 0
     freed_size = 0
     if args.analyze is True:
@@ -75,38 +74,33 @@ def main():
     else:
         printer = None
 
-    while True:
+
+    for curr_dir in dir_gen:
+        is_venv = Venv.is_venv(curr_dir)
+        dir_gen.send(not is_venv)
+        if not is_venv:
+            continue
+
+        venv = Venv(curr_dir)
+        if printer is not None:
+            printer.send(venv)
+            continue
+
+        venv.print_info()
+        total_size += venv.size()
+
+        freed_size += take_action(venv)
+
+    if printer is not None:
         try:
-            curr_dir = dir_gen.send(go_down)
-            is_venv = Venv.is_venv(curr_dir)
+            printer.send(None)
+        except StopIteration:
+            pass
+    else:
+        print('Total size:', utils.bytes_to_str(total_size))
+        print('Freed size:', utils.bytes_to_str(freed_size))
 
-            if is_venv is False:
-                go_down = True
-                continue
-            else:
-                go_down = False
-
-            venv = Venv(curr_dir)
-            if printer is not None:
-                printer.send(venv)
-                continue
-
-            venv.print_info()
-            total_size += venv.size()
-
-            freed_size += take_action(venv)
-
-        except (StopIteration, KeyboardInterrupt):
-            if printer is not None:
-                try:
-                    printer.send(None)
-                except StopIteration:
-                    pass
-            else:
-                print('Total size:', utils.bytes_to_str(total_size))
-                print('Freed size:', utils.bytes_to_str(freed_size))
-            break
-
+    exit(0)
 
 if __name__ == "__main__":
     main()
