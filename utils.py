@@ -41,10 +41,8 @@ def read_action(backup=True) -> str:
     if backup:
         print(question + ' (Y)es/(N)o/(B)ackup and delete')
         answer = input('[y/N/b] > ').lower()
-        if answer == 'y':
-            return 'y'
-        elif answer == 'b':
-            return 'b'
+        if answer in ('y', 'b'):
+            return answer
         else:
             return 'n'
     else:
